@@ -243,3 +243,5 @@ func liberarOvni(ovnis [][constCantColumnasOvni]int) {
 func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 	//PROGRAMAR
 }
+
+//asdasdasdaasdasd
