@@ -244,5 +244,5 @@ func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 	//PROGRAMAR
 }
 
-//granapetehacef5
+//tochagey
 //sos alto pete
