@@ -244,4 +244,4 @@ func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 	//PROGRAMAR
 }
 
-//ayudaxdios
+//granapete
