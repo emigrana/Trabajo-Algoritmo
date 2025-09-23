@@ -246,3 +246,6 @@ func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 
 //tochagey
 //sos alto pete
+//hola
+//hgjghgdsfadgfhgkukñl}
+//asdasdasdasdasdasasdasdasadsas
