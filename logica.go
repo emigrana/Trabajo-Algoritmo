@@ -244,5 +244,4 @@ func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 	//PROGRAMAR
 }
 
-//assdddddddddddddddd
-//assssssss
+//g
