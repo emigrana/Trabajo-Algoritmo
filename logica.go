@@ -245,3 +245,4 @@ func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 }
 
 //granapetehacef5
+//sos alto pete
