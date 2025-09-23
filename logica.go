@@ -147,23 +147,79 @@ func generarEventos() {
 func generarTablero() [constCantFilasTablero][constCantColumnasTablero]string {
 	var tablero [constCantFilasTablero][constCantColumnasTablero]string
 
-	//PROGRAMAR
+	for f := 0; f < constCantFilasTablero; f++ {
+		if f == 0 {
+			for c := 0; c < constCantColumnasTablero; c++ {
+				tablero[f][c] = "X"
+			}
+		} else if f != (constCantFilasTablero - 1) {
+			tablero[f][0] = "X"
+			tablero[f][(constCantColumnasTablero - 1)] = "X"
+		} else {
+			for c := 0; c < constCantColumnasTablero; c++ {
+				tablero[f][c] = "X"
+			}
+		}
+	}
 
 	return tablero
 }
 
 func inicializarNave(cantFilasTablero int, cantColumnasTablero int) ([constCantColumnas]int, [constCantColumnas]int) {
-	//PROGRAMAR
 
-	return [constCantColumnas]int{}, quieto
+	var (
+		nave [2]int
+	)
+
+	nave[0] = cantFilasTablero - 3
+	nave[1] = cantColumnasTablero / 2
+
+	return nave, quieto
+	//return [constCantColumnas]int{}, quieto  **CONSULTAR**
 }
 
 func inicializarOvnis(cantFilasTablero int, cantColumnasTablero int) [][constCantColumnasOvni]int {
-	var (
-		ovnis [][constCantColumnasOvni]int
-	)
 
-	//PROGRAMAR
+	var (
+		ovnis             [][constCantColumnasOvni]int
+		ovnisvector       [4]int
+		varPatronFilas    int = 7
+		varPatronColumnas int = 2
+		cantidadLideres   int = 0
+		TipoOvniAleatorio int
+		maxCantLideres    = 18
+	)
+	rand.Seed(time.Now().UnixNano())
+
+	for f := 2; f < varPatronFilas; f++ {
+		for c := varPatronColumnas; c < cantColumnasTablero-varPatronColumnas; c++ {
+
+			if cantidadLideres < maxCantLideres {
+				TipoOvniAleatorio = 1 + rand.Intn(2) //tipo de ovni 1 es lider, tipo 2 es comun
+				if TipoOvniAleatorio == 1 {
+					cantidadLideres += 1
+				}
+			} else {
+				TipoOvniAleatorio = 2
+			}
+
+			/*if TipoOvniAleatorio == 1 {
+				TipoOvniAleatorioL = "L"
+			} else {
+				TipoOvniAleatorioL = "C"
+			} */
+
+			ovnisvector[0] = TipoOvniAleatorio
+			ovnisvector[1] = f
+			ovnisvector[2] = c
+			ovnisvector[3] = 0
+			ovnis = append(ovnis, ovnisvector)
+
+		}
+		cantidadLideres = 0
+		varPatronColumnas += 1
+		maxCantLideres -= 4
+	}
 
 	return ovnis
 }
@@ -174,7 +230,28 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 	ovnis [][constCantColumnasOvni]int,
 	disparosOvnis [][constCantColumnas]int) {
 
-	//PROGRAMAR
+	var (
+		posicionY, posicionX int
+	)
+
+	for f := 0; f < len(ovnis); f++ {
+		if ovnis[f][0] == 1 {
+			posicionY = ovnis[f][1]
+			posicionX = ovnis[f][2]
+
+			tablero[posicionY][posicionX] = "L"
+		} else {
+			posicionY = ovnis[f][1]
+			posicionX = ovnis[f][2]
+
+			tablero[posicionY][posicionX] = "C"
+		}
+	}
+
+	posicionY = nave[0]
+	posicionX = nave[1]
+	tablero[posicionY][posicionX] = "N"
+
 }
 
 func calcularNuevaPosicionNave(tablero [constCantFilasTablero][constCantColumnasTablero]string,
