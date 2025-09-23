@@ -234,6 +234,7 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 		posicionY, posicionX int
 	)
 
+	//Recorrer el vector ovni, y representarlos en tablero dependiendo su tipo
 	for f := 0; f < len(ovnis); f++ {
 		if ovnis[f][0] == 1 {
 			posicionY = ovnis[f][1]
@@ -248,6 +249,7 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 		}
 	}
 
+	//representar nave
 	posicionY = nave[0]
 	posicionX = nave[1]
 	tablero[posicionY][posicionX] = "N"
@@ -256,7 +258,22 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 
 func calcularNuevaPosicionNave(tablero [constCantFilasTablero][constCantColumnasTablero]string,
 	nave *[constCantColumnas]int, direccionNave *[constCantColumnas]int) {
-	//PROGRAMAR
+
+	//actualizar posición nave
+
+	nave[0] += direccionNave[0]
+	nave[1] += direccionNave[1]
+
+	//verificar que no sea un borde y volver si es necesario
+	if nave[0] == 1 || nave[0] == 28 {
+		nave[0] -= direccionNave[0]
+	} else if nave[1] == 1 || nave[1] == 28 {
+		nave[1] -= direccionNave[1]
+	}
+
+	direccionNave[0] = 0
+	direccionNave[1] = 0
+
 }
 
 func crearDisparoNave(nave [constCantColumnas]int,
