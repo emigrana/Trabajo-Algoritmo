@@ -246,4 +246,4 @@ func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 
 // nacho pedazo de gay
 //asi
-//hola
+//asdddddd
