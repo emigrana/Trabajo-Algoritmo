@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Matriz en HTML</title>
+    <style>
+        html {
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            text-align: center;
+            font-weight: bold;
+            word-wrap: break-word;
+        }
+
+        .x-cell {
+            background-color: blue;
+            color: blue;
+
+            width: 20px;          /* ancho fijo */
+            height: 30px;         /* alto fijo */
+            text-align: center;   /* centra horizontalmente */
+            vertical-align: middle; /* centra verticalmente */
+        }
+        .x-nave {
+            background-color: yellow;
+            color: yellow;
+        }
+        .x-disparo-nave {            
+            color: yellow;
+            text-align: center;   /* centra horizontalmente */
+            vertical-align: middle; /* centra verticalmente */
+        }	
+        .x-ins_lider {
+            font-size: 20px;           /* podés ajustar el tamaño */
+            text-align: center;   /* centra horizontalmente */
+            vertical-align: middle; /* centra verticalmente */
+        }
+        .x-ins_comun {
+            font-size: 20px;           /* podés ajustar el tamaño */
+            text-align: center;   /* centra horizontalmente */
+            vertical-align: middle; /* centra verticalmente */
+        }
+		.x-disparo-insecto {            
+            color: red;
+            text-align: center;   /* centra horizontalmente */
+            vertical-align: middle; /* centra verticalmente */
+        }		
+        .x-text {
+            font-size: 1em;
+            color: white;
+        }
+        .x-nave {
+            display: inline-block;
+            transform: rotate(-45deg); /* la pone vertical hacia arriba */
+            font-size: 20px;           /* podés ajustar el tamaño */
+            background-color: transparent;   /* sin fondo */
+            color: black;              /* para que se vea sobre fondo negro */
+        }
+    </style>
+</head>
+
+<body>
+    <table id="all">
+        <tr>
+            <td>
+                <table id="matrixTable"></table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p id="points-text" class="x-text"></p>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        // Conecta con el servidor SSE
+        const eventSource = new EventSource('/updates');
+
+        // Maneja las actualizaciones recibidas del servidor
+        eventSource.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (data.game_over) {
+                location.replace('http://localhost:8080/gameover?points=' + data.points);
+
+                return;
+            }
+
+            if (data.win) {
+                location.replace('http://localhost:8080/win?points=' + data.points);
+
+                return;
+            }
+
+            if (data.is_text) {
+                const textPoints = document.getElementById('points-text');
+                textPoints.innerText = data.text
+
+                return;
+            }
+
+            const table = document.getElementById('matrixTable');
+            table.innerHTML = ''; // Limpia la tabla anterior
+
+            // Genera la nueva tabla con los datos actualizados
+            for (const row of data) {
+                const tr = document.createElement('tr');
+                for (let value of row) {
+                    const td = document.createElement('td');
+                    if (value === 'X') {
+                        value = '[.X.]'
+                        td.classList.add('x-cell');
+                    }
+                    if (value === 'N') {
+                        value = '🚀'
+                        td.classList.add('x-nave');
+                    }
+					if (value === '*') {
+                        value = '❘'
+                        td.classList.add('x-disparo-nave');
+                    }						
+					if (value === 'L') {
+                        value = '🐙'
+                        td.classList.add('x-ins_lider');
+                    }
+					if (value === 'C') {
+                        value = '👾'
+                        td.classList.add('x-ins_comun');
+                    }
+                    if (value === '.') {
+                        value = '◉'
+                        td.classList.add('x-disparo-insecto');
+                    }
+                    if (value === 'F' || value === 'G') {
+                        value = '[_]'
+                        td.classList.add('x-cell');
+                    }		
+
+                    td.textContent = value;
+                    td.noWrap = true;
+                    tr.appendChild(td);
+                }
+                table.appendChild(tr);
+            }
+        };
+
+        // Captura los eventos de teclado y envía la información al servidor
+        document.addEventListener('keydown', function (event) {
+            const keyPressed = event.key;
+
+            // Realiza una solicitud POST al servidor con la tecla presionada
+            fetch('/keypress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ key: keyPressed })
+            });
+        });
+    </script>
+</body>
+
+</html>

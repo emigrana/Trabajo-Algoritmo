@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOU WIN</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        #you-win {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 100px;
+            color: rgb(95, 190, 51);
+            font-weight: bold;
+            opacity: 0;
+        }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+</head>
+<body>
+<div id="you-win">YOU&nbsp;WIN<br><br>POINTS&nbsp;{{.Points}}</div>
+
+<script>
+    const youWinText = document.getElementById("you-win");
+    const text = youWinText.innerText;
+    youWinText.innerText = "";
+
+    function showLetters() {
+        for (let i = 0; i < text.length; i++) {
+            setTimeout(() => {
+                youWinText.innerText += text[i];
+            }, i * 100); // Cambia la velocidad de aparición ajustando el valor 200 (milisegundos)
+        }
+    }
+
+    setTimeout(() => {
+        youWinText.style.opacity = 1;
+        showLetters();
+    }, 500); // Espera 2 segundos antes de mostrar las letras
+</script>
+</body>
+</html>
