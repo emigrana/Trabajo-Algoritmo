@@ -271,6 +271,7 @@ func calcularNuevaPosicionNave(tablero [constCantFilasTablero][constCantColumnas
 		nave[1] -= direccionNave[1]
 	}
 
+	//Devolver poscion nave a 0
 	direccionNave[0] = 0
 	direccionNave[1] = 0
 
