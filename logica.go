@@ -268,6 +268,13 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 		tablero[posicionY][posicionX] = "*"
 	}
 
+	//Representar disparos ovnis
+
+	for f := 0; f < len(disparosOvnis); f++ {
+		posicionY = disparosOvnis[f][0]
+		posicionX = disparosOvnis[f][1]
+		tablero[posicionY][posicionX] = "."
+	}
 }
 
 func calcularNuevaPosicionNave(tablero [constCantFilasTablero][constCantColumnasTablero]string,
@@ -315,7 +322,16 @@ func crearDisparoNave(nave [constCantColumnas]int,
 func crearDisparoOvni(ovnis [][constCantColumnasOvni]int,
 	disparosOvnis *[][constCantColumnasDisparos]int) {
 
-	//PROGRAMAR
+	var (
+		nuevoDisparo [constCantColumnas]int
+	)
+	rand.Seed(time.Now().UnixNano())
+	ovniElegido := rand.Intn(len(ovnis))
+
+	nuevoDisparo[0] = ovnis[ovniElegido][1] // Y
+	nuevoDisparo[1] = ovnis[ovniElegido][2] // X
+	*disparosOvnis = append(*disparosOvnis, nuevoDisparo)
+
 }
 
 func calcularNuevasPosicionesDisparos(tablero [constCantFilasTablero][constCantColumnasTablero]string,
@@ -326,7 +342,9 @@ func calcularNuevasPosicionesDisparos(tablero [constCantFilasTablero][constCantC
 		disparosNave[f][0] = disparosNave[f][0] - 1
 	}
 
-	//PROGRAMAR
+	for f := 0; f < len(disparosOvnis); f++ {
+		disparosOvnis[f][0] = disparosOvnis[f][0] + 1
+	}
 }
 
 func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTablero]string,
@@ -364,12 +382,19 @@ func eliminarOvni(slice [][constCantColumnasOvni]int, coordenadaY int, coordenad
 }
 
 func liberarOvni(ovnis [][constCantColumnasOvni]int) {
-	//PROGRAMAR
+	//Elegir ovni random
+	rand.Seed(time.Now().UnixNano())
+	ovniElegido := rand.Intn(len(ovnis))
+
+	//Cambiar estado del ovni
+	ovnis[ovniElegido][3] = 1
 }
 
 func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
-	//PROGRAMAR
-}
+	for f := 0; f < len(ovnis); f++ {
+		if ovnis[f][3] == 1 {
+			ovnis[f][1] = ovnis[f][1] + 1
+		}
+	}
 
-//aaa
-//hhhh222
+}
