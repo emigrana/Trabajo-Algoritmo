@@ -234,6 +234,13 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 		posicionY, posicionX int
 	)
 
+	//Borrar los elementos
+	for f := 1; f < (constCantFilasTablero - 1); f++ {
+		for c := 1; c < (constCantColumnasTablero - 1); c++ {
+			tablero[f][c] = ""
+		}
+	}
+
 	//Recorrer el vector ovni, y representarlos en tablero dependiendo su tipo
 	for f := 0; f < len(ovnis); f++ {
 		if ovnis[f][0] == 1 {
@@ -249,10 +256,17 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 		}
 	}
 
-	//representar nave
+	//Representar nave
 	posicionY = nave[0]
 	posicionX = nave[1]
 	tablero[posicionY][posicionX] = "N"
+
+	//Representar disparos nave
+	for f := 0; f < len(disparosNave); f++ {
+		posicionY = disparosNave[f][0]
+		posicionX = disparosNave[f][1]
+		tablero[posicionY][posicionX] = "*"
+	}
 
 }
 
@@ -260,18 +274,22 @@ func calcularNuevaPosicionNave(tablero [constCantFilasTablero][constCantColumnas
 	nave *[constCantColumnas]int, direccionNave *[constCantColumnas]int) {
 
 	//actualizar posición nave
+	filaAnterior := nave[0]
+	columnaAnterior := nave[1]
+
+	tablero[filaAnterior][columnaAnterior] = ""
 
 	nave[0] += direccionNave[0]
 	nave[1] += direccionNave[1]
 
 	//verificar que no sea un borde y volver si es necesario
-	if nave[0] == 1 || nave[0] == 28 {
+	if nave[0] == 0 || nave[0] == (constCantFilasTablero-1) {
 		nave[0] -= direccionNave[0]
-	} else if nave[1] == 1 || nave[1] == 28 {
+	} else if nave[1] == 0 || nave[1] == (constCantColumnasTablero-1) {
 		nave[1] -= direccionNave[1]
 	}
 
-	//Devolver poscion nave a 0
+	//Devolver posicion nave a 0
 	direccionNave[0] = 0
 	direccionNave[1] = 0
 
@@ -281,7 +299,17 @@ func crearDisparoNave(nave [constCantColumnas]int,
 	disparoNave *bool,
 	disparosNave *[][constCantColumnasDisparos]int) {
 
-	//PROGRAMAR
+	var (
+		nuevoDisparo [constCantColumnas]int
+	)
+
+	if *disparoNave {
+		nuevoDisparo[0] = nave[0] - 1
+		nuevoDisparo[1] = nave[1]
+		*disparosNave = append(*disparosNave, nuevoDisparo)
+		*disparoNave = false
+	}
+
 }
 
 func crearDisparoOvni(ovnis [][constCantColumnasOvni]int,
@@ -293,6 +321,10 @@ func crearDisparoOvni(ovnis [][constCantColumnasOvni]int,
 func calcularNuevasPosicionesDisparos(tablero [constCantFilasTablero][constCantColumnasTablero]string,
 	disparosNave [][constCantColumnasDisparos]int,
 	disparosOvnis [][constCantColumnasDisparos]int) {
+
+	for f := 0; f < len(disparosNave); f++ {
+		disparosNave[f][0] = disparosNave[f][0] - 1
+	}
 
 	//PROGRAMAR
 }
