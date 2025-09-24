@@ -20,8 +20,8 @@ const (
 	constOvniX            = 2
 	constEnDescenso       = 3
 
-	constTiempoDeDisparoOvni   = 3
-	constTiempoLiberarcionOvni = 10
+	constTiempoDeDisparoOvni   = 15
+	constTiempoLiberarcionOvni = 30 //devolver a 3 y 10
 
 	constSimboloVacío       = ""
 	constSimboloNave        = "N"
@@ -171,8 +171,8 @@ func inicializarNave(cantFilasTablero int, cantColumnasTablero int) ([constCantC
 		nave [2]int
 	)
 
-	nave[0] = cantFilasTablero - 3
-	nave[1] = cantColumnasTablero / 2
+	nave[constY] = cantFilasTablero - 3
+	nave[constX] = cantColumnasTablero / 2
 
 	return nave, quieto
 	//return [constCantColumnas]int{}, quieto  **CONSULTAR**
@@ -209,10 +209,10 @@ func inicializarOvnis(cantFilasTablero int, cantColumnasTablero int) [][constCan
 				TipoOvniAleatorioL = "C"
 			} */
 
-			ovnisvector[0] = TipoOvniAleatorio
-			ovnisvector[1] = f
-			ovnisvector[2] = c
-			ovnisvector[3] = 0
+			ovnisvector[constTipoOvni] = TipoOvniAleatorio
+			ovnisvector[constOvniY] = f
+			ovnisvector[constOvniX] = c
+			ovnisvector[constEnDescenso] = 0
 			ovnis = append(ovnis, ovnisvector)
 
 		}
@@ -243,36 +243,36 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 
 	//Recorrer el vector ovni, y representarlos en tablero dependiendo su tipo
 	for f := 0; f < len(ovnis); f++ {
-		if ovnis[f][0] == 1 {
-			posicionY = ovnis[f][1]
-			posicionX = ovnis[f][2]
+		if ovnis[f][constTipoOvni] == 1 {
+			posicionY = ovnis[f][constOvniY]
+			posicionX = ovnis[f][constOvniX]
 
 			tablero[posicionY][posicionX] = "L"
 		} else {
-			posicionY = ovnis[f][1]
-			posicionX = ovnis[f][2]
+			posicionY = ovnis[f][constOvniY]
+			posicionX = ovnis[f][constOvniX]
 
 			tablero[posicionY][posicionX] = "C"
 		}
 	}
 
 	//Representar nave
-	posicionY = nave[0]
-	posicionX = nave[1]
+	posicionY = nave[constY]
+	posicionX = nave[constX]
 	tablero[posicionY][posicionX] = "N"
 
 	//Representar disparos nave
 	for f := 0; f < len(disparosNave); f++ {
-		posicionY = disparosNave[f][0]
-		posicionX = disparosNave[f][1]
+		posicionY = disparosNave[f][constY]
+		posicionX = disparosNave[f][constX]
 		tablero[posicionY][posicionX] = "*"
 	}
 
 	//Representar disparos ovnis
 
 	for f := 0; f < len(disparosOvnis); f++ {
-		posicionY = disparosOvnis[f][0]
-		posicionX = disparosOvnis[f][1]
+		posicionY = disparosOvnis[f][constY]
+		posicionX = disparosOvnis[f][constX]
 		tablero[posicionY][posicionX] = "."
 	}
 }
@@ -281,24 +281,24 @@ func calcularNuevaPosicionNave(tablero [constCantFilasTablero][constCantColumnas
 	nave *[constCantColumnas]int, direccionNave *[constCantColumnas]int) {
 
 	//actualizar posición nave
-	filaAnterior := nave[0]
-	columnaAnterior := nave[1]
+	filaAnterior := nave[constY]
+	columnaAnterior := nave[constX]
 
 	tablero[filaAnterior][columnaAnterior] = ""
 
-	nave[0] += direccionNave[0]
-	nave[1] += direccionNave[1]
+	nave[constY] += direccionNave[constY]
+	nave[constX] += direccionNave[constX]
 
 	//verificar que no sea un borde y volver si es necesario
-	if nave[0] == 0 || nave[0] == (constCantFilasTablero-1) {
-		nave[0] -= direccionNave[0]
-	} else if nave[1] == 0 || nave[1] == (constCantColumnasTablero-1) {
-		nave[1] -= direccionNave[1]
+	if nave[constY] == 0 || nave[constY] == (constCantFilasTablero-1) {
+		nave[constY] -= direccionNave[constY]
+	} else if nave[constX] == 0 || nave[constX] == (constCantColumnasTablero-1) {
+		nave[constX] -= direccionNave[constX]
 	}
 
 	//Devolver posicion nave a 0
-	direccionNave[0] = 0
-	direccionNave[1] = 0
+	direccionNave[constY] = 0
+	direccionNave[constX] = 0
 
 }
 
@@ -311,8 +311,8 @@ func crearDisparoNave(nave [constCantColumnas]int,
 	)
 
 	if *disparoNave {
-		nuevoDisparo[0] = nave[0] - 1
-		nuevoDisparo[1] = nave[1]
+		nuevoDisparo[constY] = nave[constY] - 1
+		nuevoDisparo[constX] = nave[constX]
 		*disparosNave = append(*disparosNave, nuevoDisparo)
 		*disparoNave = false
 	}
@@ -328,8 +328,8 @@ func crearDisparoOvni(ovnis [][constCantColumnasOvni]int,
 	rand.Seed(time.Now().UnixNano())
 	ovniElegido := rand.Intn(len(ovnis))
 
-	nuevoDisparo[0] = ovnis[ovniElegido][1] // Y
-	nuevoDisparo[1] = ovnis[ovniElegido][2] // X
+	nuevoDisparo[constY] = ovnis[ovniElegido][constOvniY] // Y
+	nuevoDisparo[constX] = ovnis[ovniElegido][constOvniX] // X
 	*disparosOvnis = append(*disparosOvnis, nuevoDisparo)
 
 }
@@ -339,11 +339,11 @@ func calcularNuevasPosicionesDisparos(tablero [constCantFilasTablero][constCantC
 	disparosOvnis [][constCantColumnasDisparos]int) {
 
 	for f := 0; f < len(disparosNave); f++ {
-		disparosNave[f][0] = disparosNave[f][0] - 1
+		disparosNave[f][constY] = disparosNave[f][constY] - 1
 	}
 
 	for f := 0; f < len(disparosOvnis); f++ {
-		disparosOvnis[f][0] = disparosOvnis[f][0] + 1
+		disparosOvnis[f][constY] = disparosOvnis[f][constY] + 1
 	}
 }
 
@@ -362,8 +362,7 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 func eliminarDisparo(slice [][constCantColumnasDisparos]int, coordenadaY int, coordenadaX int) [][2]int {
 	var nuevoSlice [][constCantColumnasDisparos]int
 	for f := 0; f < len(slice); f++ {
-		if slice[f][constY] != coordenadaY &&
-			slice[f][constX] != coordenadaX {
+		if slice[f][constY] != coordenadaY && slice[f][constX] != coordenadaX {
 			nuevoSlice = append(nuevoSlice, slice[f])
 		}
 	}
@@ -373,8 +372,7 @@ func eliminarDisparo(slice [][constCantColumnasDisparos]int, coordenadaY int, co
 func eliminarOvni(slice [][constCantColumnasOvni]int, coordenadaY int, coordenadaX int) [][4]int {
 	var nuevoSlice [][constCantColumnasOvni]int
 	for f := 0; f < len(slice); f++ {
-		if slice[f][constOvniY] != coordenadaY ||
-			slice[f][constOvniX] != coordenadaX {
+		if slice[f][constOvniY] != coordenadaY || slice[f][constOvniX] != coordenadaX {
 			nuevoSlice = append(nuevoSlice, slice[f])
 		}
 	}
@@ -387,13 +385,13 @@ func liberarOvni(ovnis [][constCantColumnasOvni]int) {
 	ovniElegido := rand.Intn(len(ovnis))
 
 	//Cambiar estado del ovni
-	ovnis[ovniElegido][3] = 1
+	ovnis[ovniElegido][constEnDescenso] = 1
 }
 
 func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 	for f := 0; f < len(ovnis); f++ {
-		if ovnis[f][3] == 1 {
-			ovnis[f][1] = ovnis[f][1] + 1
+		if ovnis[f][constEnDescenso] == 1 {
+			ovnis[f][constEnDescenso] = ovnis[f][constEnDescenso] + 1
 		}
 	}
 
