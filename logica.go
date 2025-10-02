@@ -140,7 +140,7 @@ func generarEventos() {
 		enviarActualizacionTablero(tablero)
 
 		// Espera un tiempo antes de generar un nuevo movimiento
-		time.Sleep(150 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 	}
 }
 
@@ -175,7 +175,7 @@ func inicializarNave(cantFilasTablero int, cantColumnasTablero int) ([constCantC
 	nave[constX] = cantColumnasTablero / 2
 
 	return nave, quieto
-	//return [constCantColumnas]int{}, quieto  **CONSULTAR**
+
 }
 
 func inicializarOvnis(cantFilasTablero int, cantColumnasTablero int) [][constCantColumnasOvni]int {
@@ -354,7 +354,32 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 	disparosOvnis *[][constCantColumnasDisparos]int,
 	puntos *int) bool {
 
-	//PROGRAMAR
+	var ()
+
+	//Eliminar disparos de nave cuando tocan borde
+
+	for f := 0; f < len(*disparosNave); f++ {
+
+		if (*disparosNave)[f][constY] == 0 {
+			coordenadaY := (*disparosNave)[f][constY]
+			coordenadaX := (*disparosNave)[f][constX]
+			(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+		} /*else if (*disparosNave)[f][constY] == (*disparosOvnis)[f2][constY] && (*disparosNave)[f][constX] == (*disparosOvnis)[f2][constX] {
+			coordenadaY := (*disparosNave)[f][constY]
+			coordenadaX := (*disparosNave)[f][constX]
+			(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+		} else if (*ovnis)[f3][constTipoOvni] == 2 && (*disparosNave)[f][constY] == (*ovnis)[f3][constOvniY] && (*disparosNave)[f][constX] == (*ovnis)[f3][constOvniX] {
+			coordenadaY := (*disparosNave)[f][constY]
+			coordenadaX := (*disparosNave)[f][constX]
+			(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+
+			coordenadaY = (*ovnis)[f3][constOvniY]
+			coordenadaX = (*ovnis)[f3][constOvniX]
+			(*ovnis) = eliminarOvni(*ovnis, coordenadaY, coordenadaX)
+
+		}*/
+
+	}
 
 	return true
 }
