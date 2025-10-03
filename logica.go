@@ -372,29 +372,50 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 		}
 	}
 	//Eliminar disparo ovni
-	for f2 := 0; f2 < len(*disparosNave); f2++ {
-		for f1 := 0; f1 < len(*disparosOvnis); {
-			if (*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY] && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX] {
+	/*for f2 := 0; f2 < len(*disparosNave); {
+		for f1 := 0; f1 < len(*disparosOvnis); f1++ {
+			if (*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY]-1 && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX] {
 				coordenadaY := (*disparosNave)[f2][constY]
 				coordenadaX := (*disparosNave)[f2][constX]
 				(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
-			} else {
-				f1++
+				break
+			}
+
+		}
+		f2++
+	}*/
+	for f2 := len(*disparosNave) - 1; f2 >= 0; f2-- {
+		for f1 := 0; f1 < len(*disparosOvnis); f1++ {
+			if ((*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY]-1 && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX]) ||
+				((*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY] && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX]) {
+				coordenadaY := (*disparosNave)[f2][constY]
+				coordenadaX := (*disparosNave)[f2][constX]
+				(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+				break
 			}
 		}
 	}
 
-	/*
-		} else if (*ovnis)[f3][constTipoOvni] == 2 && (*disparosNave)[f][constY] == (*ovnis)[f3][constOvniY] && (*disparosNave)[f][constX] == (*ovnis)[f3][constOvniX] {
-			coordenadaY := (*disparosNave)[f][constY]
-			coordenadaX := (*disparosNave)[f][constX]
-			(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+	for f2 := len(*disparosNave) - 1; f2 >= 0; {
 
-			coordenadaY = (*ovnis)[f3][constOvniY]
-			coordenadaX = (*ovnis)[f3][constOvniX]
-			(*ovnis) = eliminarOvni(*ovnis, coordenadaY, coordenadaX)
+		for f := 0; f < len(*ovnis); f++ {
+			if len(*disparosNave) != 0 {
+				if (*ovnis)[f][constTipoOvni] == 2 && (*ovnis)[f][constEnDescenso] == 0 && (*disparosNave)[f2][constY] == (*ovnis)[f][constOvniY] && (*disparosNave)[f2][constX] == (*ovnis)[f][constOvniX] {
+					coordenadaY := (*ovnis)[f][constOvniY]
+					coordenadaX := (*ovnis)[f][constOvniX]
+					(*ovnis) = eliminarOvni(*ovnis, coordenadaY, coordenadaX)
 
-		}*/
+					coordenadaY = (*disparosNave)[f2][constY]
+					coordenadaX = (*disparosNave)[f2][constX]
+					(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+
+				}
+			}
+
+		}
+		f2--
+
+	}
 
 	//Eliminar disparo ovni toca tablero
 	for f := 0; f < len(*disparosOvnis); {
