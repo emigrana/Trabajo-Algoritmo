@@ -20,7 +20,7 @@ const (
 	constOvniX            = 2
 	constEnDescenso       = 3
 
-	constTiempoDeDisparoOvni   = 15
+	constTiempoDeDisparoOvni   = 5
 	constTiempoLiberarcionOvni = 30 //devolver a 3 y 10
 
 	constSimboloVacío       = ""
@@ -140,7 +140,7 @@ func generarEventos() {
 		enviarActualizacionTablero(tablero)
 
 		// Espera un tiempo antes de generar un nuevo movimiento
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(300 * time.Millisecond)
 	}
 }
 
@@ -354,20 +354,37 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 	disparosOvnis *[][constCantColumnasDisparos]int,
 	puntos *int) bool {
 
-	var ()
+	var (
+
+	//disparosEliminar[][2]int
+	)
 
 	//Eliminar disparos de nave cuando tocan borde
 
-	for f := 0; f < len(*disparosNave); f++ {
-
+	for f := 0; f < len(*disparosNave); {
 		if (*disparosNave)[f][constY] == 0 {
 			coordenadaY := (*disparosNave)[f][constY]
 			coordenadaX := (*disparosNave)[f][constX]
 			(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
-		} /*else if (*disparosNave)[f][constY] == (*disparosOvnis)[f2][constY] && (*disparosNave)[f][constX] == (*disparosOvnis)[f2][constX] {
-			coordenadaY := (*disparosNave)[f][constY]
-			coordenadaX := (*disparosNave)[f][constX]
-			(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+
+		} else {
+			f++
+		}
+	}
+	//Eliminar disparo ovni
+	for f2 := 0; f2 < len(*disparosNave); f2++ {
+		for f1 := 0; f1 < len(*disparosOvnis); {
+			if (*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY] && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX] {
+				coordenadaY := (*disparosNave)[f2][constY]
+				coordenadaX := (*disparosNave)[f2][constX]
+				(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+			} else {
+				f1++
+			}
+		}
+	}
+
+	/*
 		} else if (*ovnis)[f3][constTipoOvni] == 2 && (*disparosNave)[f][constY] == (*ovnis)[f3][constOvniY] && (*disparosNave)[f][constX] == (*ovnis)[f3][constOvniX] {
 			coordenadaY := (*disparosNave)[f][constY]
 			coordenadaX := (*disparosNave)[f][constX]
@@ -379,15 +396,24 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 
 		}*/
 
+	//Eliminar disparo ovni toca tablero
+	for f := 0; f < len(*disparosOvnis); {
+		if (*disparosOvnis)[f][constY] == constCantFilasTablero-1 {
+			coordenadaY := (*disparosOvnis)[f][constY]
+			coordenadaX := (*disparosOvnis)[f][constX]
+			(*disparosOvnis) = eliminarDisparo(*disparosOvnis, coordenadaY, coordenadaX)
+		} else {
+			f++
+		}
+
 	}
 
 	return true
 }
-
-func eliminarDisparo(slice [][constCantColumnasDisparos]int, coordenadaY int, coordenadaX int) [][2]int {
+func eliminarDisparo(slice [][constCantColumnasDisparos]int, coordenadaY int, coordenadaX int) [][constCantColumnasDisparos]int {
 	var nuevoSlice [][constCantColumnasDisparos]int
 	for f := 0; f < len(slice); f++ {
-		if slice[f][constY] != coordenadaY && slice[f][constX] != coordenadaX {
+		if !(slice[f][constY] == coordenadaY && slice[f][constX] == coordenadaX) {
 			nuevoSlice = append(nuevoSlice, slice[f])
 		}
 	}
