@@ -127,6 +127,12 @@ func generarEventos() {
 			if len(ovnis) == 0 {
 				enviarWin(puntos)
 
+				// Se genera la nave (posición inicial) otra vez
+				//nave, direccionNave = inicializarNave(constCantFilasTablero, constCantColumnasTablero)
+
+				// Se generan los ovnis (posiciones iniciales) otra vez
+				//ovnis = inicializarOvnis(constCantFilasTablero, constCantColumnasTablero)
+
 				return
 			}
 
@@ -311,7 +317,7 @@ func crearDisparoNave(nave [constCantColumnas]int,
 	)
 
 	if *disparoNave {
-		nuevoDisparo[constY] = nave[constY] - 1
+		nuevoDisparo[constY] = nave[constY] //-1
 		nuevoDisparo[constX] = nave[constX]
 		*disparosNave = append(*disparosNave, nuevoDisparo)
 		*disparoNave = false
@@ -395,6 +401,7 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 			}
 		}
 	}
+	//Eliminar ovnis que hayamos disparado
 
 	for f2 := len(*disparosNave) - 1; f2 >= 0; {
 
@@ -409,12 +416,16 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 					coordenadaX = (*disparosNave)[f2][constX]
 					(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
 
+					*puntos = *puntos + 10
+
 				}
 			}
 
 		}
 		f2--
-
+		if len(*disparosNave) < f2 {
+			break
+		}
 	}
 
 	//Eliminar disparo ovni toca tablero
@@ -428,7 +439,7 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 		}
 
 	}
-	//Eliminar ovni en descenso que toca el borde 
+	//Eliminar ovni en descenso que toca el borde
 	for f := 0; f < len(*ovnis); {
 		if (*ovnis)[f][constOvniY] == constCantFilasTablero-1 {
 			coordenadaY := (*ovnis)[f][constOvniY]
@@ -447,8 +458,6 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 		}
 	}
 
-	
-
 	//Cambiar ovnis lideres por comunes al recibir disparo
 	for f := len(*disparosNave) - 1; f >= 0; {
 		for f2 := 0; f2 < len(*ovnis); f2++ {
@@ -465,7 +474,20 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 
 		}
 		f--
+		if len(*disparosNave) < f {
+			break
+		}
+	}
 
+	//Si un ovni choca, restar una vida
+	for f := 0; f < len(*ovnis); f++ {
+		if (*ovnis)[f][constOvniY] == nave[constY] && (*ovnis)[f][constOvniX] == nave[constX] {
+			coordenadaX := (*ovnis)[f][constOvniX]
+			coordenadaY := (*ovnis)[f][constOvniY]
+
+			(*ovnis) = eliminarOvni(*ovnis, coordenadaY, coordenadaX)
+			return false
+		}
 	}
 
 	return true
