@@ -21,7 +21,7 @@ const (
 	constEnDescenso       = 3
 
 	constTiempoDeDisparoOvni   = 5
-	constTiempoLiberarcionOvni = 30 //devolver a 3 y 10
+	constTiempoLiberarcionOvni = 3 //devolver a 3 y 10
 
 	constSimboloVacío       = ""
 	constSimboloNave        = "N"
@@ -428,6 +428,45 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 		}
 
 	}
+	//Eliminar ovni en descenso que toca el borde 
+	for f := 0; f < len(*ovnis); {
+		if (*ovnis)[f][constOvniY] == constCantFilasTablero-1 {
+			coordenadaY := (*ovnis)[f][constOvniY]
+			coordenadaX := (*ovnis)[f][constOvniX]
+			(*ovnis) = eliminarOvni(*ovnis, coordenadaY, coordenadaX)
+		} else {
+			f++
+		}
+
+	}
+
+	//retornar false si disparo ovni toca a la nave
+	for f := 0; f < len(*disparosOvnis); f++ {
+		if (*disparosOvnis)[f][constY] == nave[constY] && (*disparosOvnis)[f][constX] == nave[constX] {
+			return false
+		}
+	}
+
+	
+
+	//Cambiar ovnis lideres por comunes al recibir disparo
+	for f := len(*disparosNave) - 1; f >= 0; {
+		for f2 := 0; f2 < len(*ovnis); f2++ {
+			if len(*disparosNave) != 0 {
+				if (*ovnis)[f2][constTipoOvni] == 1 && (*ovnis)[f2][constEnDescenso] == 0 && (*disparosNave)[f][constY] == (*ovnis)[f2][constOvniY] && (*disparosNave)[f][constX] == (*ovnis)[f2][constOvniX] {
+
+					(*ovnis)[f2][constTipoOvni] = 2
+
+					coordenadaY := (*disparosNave)[f][constY]
+					coordenadaX := (*disparosNave)[f][constX]
+					(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+				}
+			}
+
+		}
+		f--
+
+	}
 
 	return true
 }
@@ -463,7 +502,7 @@ func liberarOvni(ovnis [][constCantColumnasOvni]int) {
 func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 	for f := 0; f < len(ovnis); f++ {
 		if ovnis[f][constEnDescenso] == 1 {
-			ovnis[f][constEnDescenso] = ovnis[f][constEnDescenso] + 1
+			ovnis[f][constOvniY]++
 		}
 	}
 
