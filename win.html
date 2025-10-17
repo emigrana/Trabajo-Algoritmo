@@ -15,10 +15,22 @@
 
         #you-win {
             position: absolute;
+        
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 100px;
+            font-size: 50px;
+            color: rgb(95, 190, 51);
+            font-weight: bold;
+            opacity: 0;
+        }
+
+        #extra {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 15px;
             color: rgb(95, 190, 51);
             font-weight: bold;
             opacity: 0;
@@ -27,25 +39,42 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 </head>
 <body>
-<div id="you-win">YOU&nbsp;WIN<br><br>POINTS&nbsp;{{.Points}}</div>
+<div id="you-win">
+  YOU&nbsp;WIN<br><br>POINTS&nbsp;{{.Points}}</div>
+  <div id="extra"><br>PRESS&nbsp;ENTER&nbsp;TO&nbsp;RESTART</div>
 
 <script>
     const youWinText = document.getElementById("you-win");
-    const text = youWinText.innerText;
+    const extraText = document.getElementById("extra");
+
+    const maintext = youWinText.innerText;
+    const text = extraText.innerText;
     youWinText.innerText = "";
+    extraText.innerText = "";
 
     function showLetters() {
         for (let i = 0; i < text.length; i++) {
             setTimeout(() => {
                 youWinText.innerText += text[i];
-            }, i * 100); // Cambia la velocidad de aparición ajustando el valor 200 (milisegundos)
+                extraText.innerText += text[i];
+            }, i * 100);
         }
     }
 
     setTimeout(() => {
         youWinText.style.opacity = 1;
+        extraText.style.opacity = 1
         showLetters();
-    }, 500); // Espera 2 segundos antes de mostrar las letras
+    }, 500);
+
+    // NEW: al presionar Enter reinicia el juego en el servidor y vuelve a "/"
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            fetch('/restart', { method: 'POST' })
+                .then(() => { window.location.replace('/'); })
+                .catch(() => { window.location.replace('/'); });
+        }
+    });
 </script>
 </body>
 </html>

@@ -28,6 +28,9 @@ func main() {
 	//Agrega una nueva ruta para "you win"
 	http.HandleFunc("/win", winHandler)
 
+	// NEW: handler para reiniciar el juego desde la página "YOU WIN"
+	http.HandleFunc("/restart", restartHandler)
+
 	// Inicia una goroutine para enviar actualizaciones a los clientes
 	go generarEventos()
 
@@ -176,4 +179,15 @@ func enviarWin(points int) {
 	updates <- texto
 
 	fmt.Println("Win. Points:", points)
+}
+
+// NEW: restartHandler
+func restartHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	// Lanzar una nueva instancia de la lógica del juego
+	go generarEventos()
+	w.WriteHeader(http.StatusOK)
 }

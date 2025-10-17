@@ -125,14 +125,16 @@ func generarEventos() {
 			}
 		} else {
 			if len(ovnis) == 0 {
+
 				enviarWin(puntos)
+				/*
+					// Se genera la nave (posición inicial) otra vez
+					nave, direccionNave = inicializarNave(constCantFilasTablero, constCantColumnasTablero)
 
-				// Se genera la nave (posición inicial) otra vez
-				//nave, direccionNave = inicializarNave(constCantFilasTablero, constCantColumnasTablero)
-
-				// Se generan los ovnis (posiciones iniciales) otra vez
-				//ovnis = inicializarOvnis(constCantFilasTablero, constCantColumnasTablero)
-
+					// Se generan los ovnis (posiciones iniciales) otra vez
+					ovnis = inicializarOvnis(constCantFilasTablero, constCantColumnasTablero)
+				*/
+				//generarEventos()
 				return
 			}
 
@@ -189,11 +191,11 @@ func inicializarOvnis(cantFilasTablero int, cantColumnasTablero int) [][constCan
 	var (
 		ovnis             [][constCantColumnasOvni]int
 		ovnisvector       [4]int
-		varPatronFilas    int = 7
-		varPatronColumnas int = 2
+		varPatronFilas    int = 2 //7
+		varPatronColumnas int = 2 //2
 		cantidadLideres   int = 0
 		TipoOvniAleatorio int
-		maxCantLideres    = 18
+		maxCantLideres    = 1 //18
 	)
 	rand.Seed(time.Now().UnixNano())
 
@@ -401,7 +403,7 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 			}
 		}
 	}
-	//Eliminar ovnis que hayamos disparado
+	//Eliminar ovnis que hayamos disparado hay error acá
 
 	for f2 := len(*disparosNave) - 1; f2 >= 0; {
 
