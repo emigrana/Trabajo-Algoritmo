@@ -154,7 +154,7 @@ func generarEventos() {
 						velocidadJuego -= 50
 					}
 
-					if cantVictorias < 1 {
+					if cantVictorias < 2 {
 						cantVictorias = cantVictorias + 1
 						nave, direccionNave = inicializarNave(constCantFilasTablero, constCantColumnasTablero)
 						ovnis = inicializarOvnis(constCantFilasTablero, constCantColumnasTablero)
