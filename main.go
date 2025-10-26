@@ -8,7 +8,10 @@ import (
 )
 
 // Agrega un canal para enviar actualizaciones a los clientes
-var updates = make(chan string)
+var (
+	updates     = make(chan string)
+	stopCurrent = make(chan bool)
+)
 
 func main() {
 	// Ruta para servir la página principal
@@ -182,12 +185,59 @@ func enviarWin(points int) {
 }
 
 // NEW: restartHandler
+/*func restartHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	select {
+	case stopCurrent <- true:
+	default:
+	}
+	// Lanzar una nueva instancia de la lógica del juego
+	go generarEventos()
+	w.WriteHeader(http.StatusOK)
+
+}*/
+/*func restartHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	// 1. Intentamos detener cualquier bucle de juego que AÚN esté corriendo.
+	select {
+	case stopCurrent <- true:
+	default:
+	}
+
+	// 2. (ESTA ES LA CORRECCIÓN) Limpiamos cualquier señal "stop" residual para
+	//    asegurarnos de que el nuevo juego no la reciba por error.
+	select {
+	case <-stopCurrent: // Leemos la señal y la descartamos.
+	default:
+	}
+
+	// 3. Ahora sí, lanzamos la nueva instancia del juego con el canal limpio.
+	go generarEventos()
+	w.WriteHeader(http.StatusOK)
+}*/
+
+// En main.go
 func restartHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	// Lanzar una nueva instancia de la lógica del juego
+	select {
+	case stopCurrent <- true:
+	default:
+	}
+
+	//AÑADE ESTA LÍNEA PARA RESETEAR TODO
+	//ReiniciarJuegoCompleto()
+
+	//Lanzar una nueva instancia de la lógica del juego
 	go generarEventos()
 	w.WriteHeader(http.StatusOK)
 }

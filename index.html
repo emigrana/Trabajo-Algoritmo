@@ -14,11 +14,24 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: black;
+        }
+
+        .fondo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:url(https://wallpapercave.com/wp/wp4037843.jpg);
+            background-size: cover;
+            background-position: center;
+            opacity: 1;
+            z-index: -1;
         }
 
         table {
             border-collapse: collapse;
+            background-color: black;
         }
 
         td {
@@ -26,7 +39,6 @@
             font-weight: bold;
             word-wrap: break-word;
         }
-
         .x-cell {
             background-color: blue;
             color: blue;
@@ -60,9 +72,20 @@
             text-align: center;   /* centra horizontalmente */
             vertical-align: middle; /* centra verticalmente */
         }		
+        .x-corazon {
+             font-size: 22px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        #filapuntos{
+            background-color: transparent;
+            background:transparent;
+        }
         .x-text {
             font-size: 1em;
             color: white;
+            background-color: transparent !important;
+            background: transparent !important;
         }
         .x-nave {
             display: inline-block;
@@ -71,19 +94,36 @@
             background-color: transparent;   /* sin fondo */
             color: black;              /* para que se vea sobre fondo negro */
         }
+        #galaxian {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: flex-start;
+            display: flex;
+        }
+        #galaxian img {
+            width: 40%;
+            height: auto;
+            opacity: 1;
+            z-index: 1;
+        }
     </style>
 </head>
-
 <body>
+    <div class="fondo"></div>
+    <div id="galaxian"><img src="https://wallpapercave.com/wp/wp10409128.jpg"></div>
     <table id="all">
         <tr>
             <td>
                 <table id="matrixTable"></table>
             </td>
         </tr>
-        <tr>
+        <tr id="filaPuntos">
             <td>
-                <p id="points-text" class="x-text"></p>
+                <p id="points-text" class="x-text"></p> 
             </td>
         </tr>
     </table>
@@ -149,7 +189,12 @@
                     if (value === 'F' || value === 'G') {
                         value = '[_]'
                         td.classList.add('x-cell');
-                    }		
+                    }	
+                    if (value === 'Q') {
+                        value = '❤️';
+                        td.classList.add('x-corazon');
+                    }
+	
 
                     td.textContent = value;
                     td.noWrap = true;

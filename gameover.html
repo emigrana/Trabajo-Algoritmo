@@ -13,21 +13,56 @@
             font-family: 'Press Start 2P', cursive;
         }
 
+        .fondo{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:url(fondoGameOver.png);  
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            z-index: 1;
+        }
+    
+
         #game-over {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 100px;
+            font-size: 45px;
             color: red;
             font-weight: bold;
             opacity: 0;
+            text-align: center;
+        }
+
+        #imagen {
+            position: fixed;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15%;
+            height: 15%;
+            opacity: 0.4;
+            z-index: 1;
+            align-items: center;
+            align-content: center;
+        }
+        #imagen img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 </head>
 <body>
 <div id="game-over">GAME&nbsp;OVER<br><br>PUNTOS&nbsp;{{.Points}}</div>
+<div id="imagen"><img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjJ4ZmN6bnFnZXljbjc5NThtZ2hibXVqdnl3Z2c1MGM2ODV5b3MzYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/BWHG0I068mUjix7zoY/giphy.gif" alt ="Suerte la proxima :/"></div>
 
 <script>
     const gameOverText = document.getElementById("game-over");

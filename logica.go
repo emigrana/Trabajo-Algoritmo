@@ -36,11 +36,16 @@ const (
 
 // Vector global con las direcciones posibles
 var (
-	quieto    = [constCantColumnas]int{0, 0}
-	izquierda = [constCantColumnas]int{0, -1}
-	derecha   = [constCantColumnas]int{0, 1}
-	arriba    = [constCantColumnas]int{-1, 0}
-	abajo     = [constCantColumnas]int{1, 0}
+	quieto               = [constCantColumnas]int{0, 0}
+	izquierda            = [constCantColumnas]int{0, -1}
+	derecha              = [constCantColumnas]int{0, 1}
+	arriba               = [constCantColumnas]int{-1, 0}
+	abajo                = [constCantColumnas]int{1, 0}
+	Vidas            int = 3
+	Puntos           int = 0
+	velocidadJuego   int = 300
+	VelocidadJuego   int = 300
+	cantVidasCreadas int = 0
 )
 
 // Vector global con las direccion de la nave
@@ -48,6 +53,17 @@ var direccionNave [constCantColumnas]int
 
 // Variable global que indica si se presiono la barra espaciadora lo que ejecuta un disparo de la nave
 var disparoNave bool
+
+// Inicializo Puntos y Vida para acumularlos entre niveles
+func LeerEstado() (vidas, puntos, velocidadJuego int) {
+	return Vidas, Puntos, VelocidadJuego
+}
+
+func GuardarEstado(vidas, puntos, velocidadJuego int) {
+	Vidas = vidas
+	Puntos = puntos
+	VelocidadJuego = velocidadJuego
+}
 
 // Función para enviar actualizaciones a los clientes
 func generarEventos() {
@@ -60,22 +76,23 @@ func generarEventos() {
 		ovnis         [][constCantColumnasOvni]int
 		disparosOvnis [][constCantColumnas]int
 
+		vidasExtra [constCantColumnas]int
+
 		ultimaEjecucionDisparoOvni    time.Time
 		ultimaEjecucionLiberacionOvni time.Time
 
-		puntos int
-		vidas  int
+		vidas, puntos, velocidadJuego = LeerEstado()
 	)
 
 	rand.Seed(time.Now().Unix())
+
+	vidas, puntos, velocidadJuego = LeerEstado()
 
 	//Se inicializa variables
 	ultimaEjecucionDisparoOvni = time.Now()
 	ultimaEjecucionLiberacionOvni = time.Now()
 
 	disparoNave = false
-
-	vidas = 3
 
 	// Se genera tablero por primera vez con los bordes
 	tablero = generarTablero()
@@ -87,69 +104,85 @@ func generarEventos() {
 	ovnis = inicializarOvnis(constCantFilasTablero, constCantColumnasTablero)
 
 	// Se actualiza nave y ovnis en el tablero por primera vez
-	actualizarTablero(&tablero, nave, disparosNave, ovnis, disparosOvnis)
+	actualizarTablero(&tablero, nave, disparosNave, ovnis, disparosOvnis, &vidasExtra)
 
 	for {
-		// Se actualizan las posiciones de la nave según la dirección
-		calcularNuevaPosicionNave(tablero, &nave, &direccionNave)
+		select {
+		case <-stopCurrent:
+			return // salir si recibimos señal de stop
+		default:
+			// Se actualizan las posiciones de la nave según la dirección
+			calcularNuevaPosicionNave(tablero, &nave, &direccionNave)
 
-		// Se crea un nuevo disparo si corresponde
-		crearDisparoNave(nave, &disparoNave, &disparosNave)
+			// Se crea un nuevo disparo si corresponde
+			crearDisparoNave(nave, &disparoNave, &disparosNave)
 
-		//Cada "constTiempoDeDisparoOvni" segundos, se crea un disparo de un ovni
-		if time.Since(ultimaEjecucionDisparoOvni) >= constTiempoDeDisparoOvni*time.Second {
-			crearDisparoOvni(ovnis, &disparosOvnis)
-			ultimaEjecucionDisparoOvni = time.Now()
-		}
-
-		//Cada "constTiempoLiberarcionOvni" segundos, se libera un obvni de la formación
-		if time.Since(ultimaEjecucionLiberacionOvni) >= constTiempoLiberarcionOvni*time.Second {
-			liberarOvni(ovnis)
-			ultimaEjecucionLiberacionOvni = time.Now()
-		}
-
-		// Se calcula la nueva posición de los ovnis liberados
-		calcularNuevaPosicionOvnisLiberados(ovnis)
-
-		// Se calcula las nuevas posiciones de los disparos de la nave y de los ovnis
-		calcularNuevasPosicionesDisparos(tablero, disparosNave, disparosOvnis)
-
-		// Se verifica el estado del juego y eliminan elementos si corresponde
-		if !verificarEstadoDeJuego(tablero, nave, &ovnis, &disparosNave, &disparosOvnis, &puntos) {
-			// Si no tiene más vidas, se devuelve pantalla gameOver
-			vidas--
-
-			if vidas <= 0 {
-				enviarGameOver(puntos)
-				return
+			//Cada "constTiempoDeDisparoOvni" segundos, se crea un disparo de un ovni
+			if time.Since(ultimaEjecucionDisparoOvni) >= constTiempoDeDisparoOvni*time.Second {
+				crearDisparoOvni(ovnis, &disparosOvnis)
+				ultimaEjecucionDisparoOvni = time.Now()
 			}
-		} else {
-			if len(ovnis) == 0 {
 
-				enviarWin(puntos)
-				/*
-					// Se genera la nave (posición inicial) otra vez
+			//Cada "constTiempoLiberarcionOvni" segundos, se libera un obvni de la formación
+			if time.Since(ultimaEjecucionLiberacionOvni) >= constTiempoLiberarcionOvni*time.Second {
+				liberarOvni(ovnis)
+				ultimaEjecucionLiberacionOvni = time.Now()
+			}
+
+			// Se calcula la nueva posición de los ovnis liberados
+			calcularNuevaPosicionOvnisLiberados(ovnis)
+
+			// Se calcula las nuevas posicio|nes de los disparos de la nave y de los ovnis
+			calcularNuevasPosicionesDisparos(tablero, disparosNave, disparosOvnis)
+			crearVidas(puntos, vidas, ovnis, &vidasExtra, &cantVidasCreadas)
+			calcularNuevaPosicionVidas(&vidasExtra)
+
+			// Se verifica el estado del juego y eliminan elementos si corresponde
+			if !verificarEstadoDeJuego(tablero, nave, &ovnis, &disparosNave, &disparosOvnis, &puntos, &vidasExtra, &vidas) {
+
+				vidas--
+				GuardarEstado(vidas, puntos, velocidadJuego) //guardo las vidas y los puntos globales (del anterior)
+				// Si no tiene más vidas, se devuelve pantalla gameOver
+				if vidas <= 0 {
+					enviarGameOver(puntos)
+					return
+				}
+			} else {
+				if len(ovnis) == 0 {
+					if velocidadJuego > 100 {
+						velocidadJuego -= 50
+					}
+
+					GuardarEstado(vidas, puntos, velocidadJuego)
+					enviarWin(puntos)
+
+					disparosNave = nil
+					disparosOvnis = nil
+					//Se genera la nave y ovnis otra vez (posición inicial)
 					nave, direccionNave = inicializarNave(constCantFilasTablero, constCantColumnasTablero)
-
-					// Se generan los ovnis (posiciones iniciales) otra vez
 					ovnis = inicializarOvnis(constCantFilasTablero, constCantColumnasTablero)
-				*/
-				//generarEventos()
-				return
+
+					//generarEventos()
+					return
+				}
+				GuardarEstado(vidas, puntos, velocidadJuego)
+				enviarActualizacionTexto(fmt.Sprint("Puntaje: ", puntos, ". Vidas: ", vidas))
 			}
 
-			enviarActualizacionTexto(fmt.Sprint("Puntaje: ", puntos, ". Vidas: ", vidas))
+			//Se actualiza el tablero con los valores de la nave, ovnis y disparos en sus nuevas posiciones
+			actualizarTablero(&tablero, nave, disparosNave, ovnis, disparosOvnis, &vidasExtra)
+
+			// Se envía actualización de tablero al cliente para mostrar en pantalla
+			enviarActualizacionTablero(tablero)
+
+			GuardarEstado(vidas, puntos, velocidadJuego) //sin este aveces se tilda mucho tiempo, idk
+
+			// Espera un tiempo antes de generar un nuevo movimiento
+
+			time.Sleep(time.Duration(velocidadJuego) * time.Millisecond)
 		}
-
-		//Se actualiza el tablero con los valores de la nave, ovnis y disparos en sus nuevas posiciones
-		actualizarTablero(&tablero, nave, disparosNave, ovnis, disparosOvnis)
-
-		// Se envía actualización de tablero al cliente para mostrar en pantalla
-		enviarActualizacionTablero(tablero)
-
-		// Espera un tiempo antes de generar un nuevo movimiento
-		time.Sleep(300 * time.Millisecond)
 	}
+
 }
 
 func generarTablero() [constCantFilasTablero][constCantColumnasTablero]string {
@@ -191,7 +224,7 @@ func inicializarOvnis(cantFilasTablero int, cantColumnasTablero int) [][constCan
 	var (
 		ovnis             [][constCantColumnasOvni]int
 		ovnisvector       [4]int
-		varPatronFilas    int = 2 //7
+		varPatronFilas    int = 3 //2 //7
 		varPatronColumnas int = 2 //2
 		cantidadLideres   int = 0
 		TipoOvniAleatorio int
@@ -236,7 +269,7 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 	nave [constCantColumnas]int,
 	disparosNave [][constCantColumnas]int,
 	ovnis [][constCantColumnasOvni]int,
-	disparosOvnis [][constCantColumnas]int) {
+	disparosOvnis [][constCantColumnas]int, vidasExtra *[constCantColumnas]int) {
 
 	var (
 		posicionY, posicionX int
@@ -262,6 +295,13 @@ func actualizarTablero(tablero *[constCantFilasTablero][constCantColumnasTablero
 
 			tablero[posicionY][posicionX] = "C"
 		}
+	}
+
+	//Representar vidas
+	if vidasExtra[constX] != 0 {
+		posicionX = vidasExtra[constX]
+		posicionY = vidasExtra[constY]
+		tablero[posicionY][posicionX] = "Q"
 	}
 
 	//Representar nave
@@ -355,12 +395,65 @@ func calcularNuevasPosicionesDisparos(tablero [constCantFilasTablero][constCantC
 	}
 }
 
+// Nueva Función que cada ciertos puntos nos da una vida
+func crearVidas(puntos int, vidas int, ovnis [][constCantColumnasOvni]int, vidasExtra *[constCantColumnas]int, cantVidasCreadas *int) {
+	var (
+		cantPuntosNecesarias int = 50
+	)
+	/*Lo que buscamos hacer aquí es evitar que al tener 50/100/150... puntos, no se creen
+	vidas de forma infinita, (hasta que tengamos un puntaje diferente a multiplo de 50
+	por primero constatamos que tengamos más de 0 puntos, y cada vez que creamos una vida
+	incrementamos el monto necesario para obtener una más de a 50 puntos*/
+	if puntos != 0 {
+		if *cantVidasCreadas == 0 {
+			if len(ovnis) > 0 {
+				if puntos%cantPuntosNecesarias == 0 {
+
+					rand.Seed(time.Now().UnixNano())
+					ovniElegido := rand.Intn(len(ovnis))
+
+					vidasExtra[constX] = ovnis[ovniElegido][constX]
+					//vidasExtra[constY] = ovnis[ovniElegido][constY]
+					vidasExtra[constY] = 1
+					(*cantVidasCreadas)++
+				}
+			}
+
+		} else {
+			cantPuntosNecesarias = (*cantVidasCreadas) * 50
+			if len(ovnis) > 0 {
+				if puntos%cantPuntosNecesarias == 0 {
+
+					rand.Seed(time.Now().UnixNano())
+					ovniElegido := rand.Intn(len(ovnis))
+
+					vidasExtra[constX] = ovnis[ovniElegido][constX]
+					//vidasExtra[constY] = ovnis[ovniElegido][constY]
+					vidasExtra[constY] = 1
+					(*cantVidasCreadas)++
+				}
+			}
+
+		}
+	}
+
+}
+
+// calcular nueva poscion de las vidas
+func calcularNuevaPosicionVidas(vidasExtra *[constCantColumnas]int) {
+
+	if vidasExtra[constX] != 0 {
+		vidasExtra[constY]++
+	}
+
+}
+
 func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTablero]string,
 	nave [constCantColumnas]int,
 	ovnis *[][constCantColumnasOvni]int,
 	disparosNave *[][constCantColumnasDisparos]int,
 	disparosOvnis *[][constCantColumnasDisparos]int,
-	puntos *int) bool {
+	puntos *int, vidasExtra *[constCantColumnas]int, vidas *int) bool {
 
 	var (
 
@@ -379,6 +472,20 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 			f++
 		}
 	}
+
+	/* Eliminar las vidas que toquen el borde. Al no poder eliminarlas, las colocamos
+	en la columna 0, donde el programa no las representa, y tampoco les acuatualiza
+	la posicion. Esto hasta que se se "Cree otra vida" y se le reasignen los valores)*/
+	if (*vidasExtra)[constY] == constCantFilasTablero-2 {
+		(*vidasExtra)[constX] = 0
+	}
+
+	//si tocamos una vida que está en caída, sumarnos una vida y eliminar (esconder) la vida
+	if (*vidasExtra)[constY] == nave[constY] && (*vidasExtra)[constX] == nave[constX] {
+		(*vidas)++
+		vidasExtra[constX] = 0
+	}
+
 	//Eliminar disparo ovni
 	/*for f2 := 0; f2 < len(*disparosNave); {
 		for f1 := 0; f1 < len(*disparosOvnis); f1++ {
@@ -392,20 +499,23 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 		}
 		f2++
 	}*/
+
+	//elminar disparos de nave que toquen disparos de ovnis
 	for f2 := len(*disparosNave) - 1; f2 >= 0; f2-- {
-		for f1 := 0; f1 < len(*disparosOvnis); f1++ {
-			if ((*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY]-1 && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX]) ||
-				((*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY] && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX]) {
+		if len(*disparosNave) == 0 {
+			break
+		}
+		for f1 := len(*disparosOvnis) - 1; f1 >= 0; f1-- {
+			if ((*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY]-1 && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX]) || ((*disparosNave)[f2][constY] == (*disparosOvnis)[f1][constY] && (*disparosNave)[f2][constX] == (*disparosOvnis)[f1][constX]) {
 				coordenadaY := (*disparosNave)[f2][constY]
 				coordenadaX := (*disparosNave)[f2][constX]
 				(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
-				break
 			}
 		}
 	}
 	//Eliminar ovnis que hayamos disparado hay error acá
 
-	for f2 := len(*disparosNave) - 1; f2 >= 0; {
+	for f2 := len(*disparosNave) - 1; f2 >= 0; f2-- {
 
 		for f := 0; f < len(*ovnis); f++ {
 			if len(*disparosNave) != 0 {
@@ -418,15 +528,12 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 					coordenadaX = (*disparosNave)[f2][constX]
 					(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
 
-					*puntos = *puntos + 10
+					*puntos += 10
+					break
 
 				}
 			}
 
-		}
-		f2--
-		if len(*disparosNave) < f2 {
-			break
 		}
 	}
 
@@ -461,7 +568,7 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 	}
 
 	//Cambiar ovnis lideres por comunes al recibir disparo
-	for f := len(*disparosNave) - 1; f >= 0; {
+	for f := len(*disparosNave) - 1; f >= 0; f-- {
 		for f2 := 0; f2 < len(*ovnis); f2++ {
 			if len(*disparosNave) != 0 {
 				if (*ovnis)[f2][constTipoOvni] == 1 && (*ovnis)[f2][constEnDescenso] == 0 && (*disparosNave)[f][constY] == (*ovnis)[f2][constOvniY] && (*disparosNave)[f][constX] == (*ovnis)[f2][constOvniX] {
@@ -471,14 +578,12 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 					coordenadaY := (*disparosNave)[f][constY]
 					coordenadaX := (*disparosNave)[f][constX]
 					(*disparosNave) = eliminarDisparo(*disparosNave, coordenadaY, coordenadaX)
+					break
 				}
 			}
 
 		}
-		f--
-		if len(*disparosNave) < f {
-			break
-		}
+
 	}
 
 	//Si un ovni choca, restar una vida
@@ -494,6 +599,7 @@ func verificarEstadoDeJuego(tablero [constCantFilasTablero][constCantColumnasTab
 
 	return true
 }
+
 func eliminarDisparo(slice [][constCantColumnasDisparos]int, coordenadaY int, coordenadaX int) [][constCantColumnasDisparos]int {
 	var nuevoSlice [][constCantColumnasDisparos]int
 	for f := 0; f < len(slice); f++ {
@@ -531,3 +637,12 @@ func calcularNuevaPosicionOvnisLiberados(ovnis [][constCantColumnasOvni]int) {
 	}
 
 }
+
+/*func ReiniciarJuegoCompleto() {
+	Vidas = 3
+	Puntos = 0
+	VelocidadJuego = 300
+	direccionNave = quieto
+	disparoNave = false
+	fake
+}*/

@@ -12,10 +12,21 @@
             color: white;
             font-family: 'Press Start 2P', cursive;
         }
-
+        .fondo{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTlpdmNndGE5dm16Z251YmVyZHh3NmxiN3IxNDZyZHVjcDI0OHJlNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3IcEq6Cq9R9ErPoZIK/giphy.gif);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            z-index: -1;
+        }
         #you-win {
             position: absolute;
-        
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -23,6 +34,7 @@
             color: rgb(95, 190, 51);
             font-weight: bold;
             opacity: 0;
+            text-align: center;
         }
 
         #extra {
@@ -34,33 +46,44 @@
             color: rgb(95, 190, 51);
             font-weight: bold;
             opacity: 0;
+            text-align: center;
         }
+
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 </head>
 <body>
+<div class="fondo"></div>
 <div id="you-win">
   YOU&nbsp;WIN<br><br>POINTS&nbsp;{{.Points}}</div>
-  <div id="extra"><br>PRESS&nbsp;ENTER&nbsp;TO&nbsp;RESTART</div>
+  <div id="extra"><br>PRESS&nbsp;ENTER&nbsp;TO&nbsp;KEEP&nbsp;PLAYING</div>
 
 <script>
     const youWinText = document.getElementById("you-win");
     const extraText = document.getElementById("extra");
 
-    const maintext = youWinText.innerText;
-    const text = extraText.innerText;
+    const mainText = youWinText.innerText;
+    const extraString = extraText.innerText;
     youWinText.innerText = "";
     extraText.innerText = "";
 
     function showLetters() {
-        for (let i = 0; i < text.length; i++) {
+   for (let i = 0; i < Math.max(mainText.length, extraString.length); i++) {
+            setTimeout(() => {
+                if (i < mainText.length) youWinText.innerText += mainText[i];
+                if (i < extraString.length) extraText.innerText += extraString[i];
+            }, i * 80);
+
+    }
+}
+        /* for (let i = 0; i < text.length; i++) {
             setTimeout(() => {
                 youWinText.innerText += text[i];
                 extraText.innerText += text[i];
             }, i * 100);
         }
     }
-
+*/
     setTimeout(() => {
         youWinText.style.opacity = 1;
         extraText.style.opacity = 1
